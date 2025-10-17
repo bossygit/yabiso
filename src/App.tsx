@@ -253,7 +253,7 @@ export default function MouvementCitoyenApp() {
         <div className="bg-white rounded-lg shadow-2xl overflow-hidden">
           <div className="p-8 text-center border-b-4" style={{ borderColor: '#FFD700' }}>
             <h1 className="text-4xl font-bold mb-2" style={{ color: '#007FFF' }}>
-              Mouvement Citoyen Congolais
+              Congo Na Bisso
             </h1>
             <p className="text-gray-600 text-lg">
               {editingMember ? 'Modifier les informations du membre' : 'Formulaire d\'adhésion'}

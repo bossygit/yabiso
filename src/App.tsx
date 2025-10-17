@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { User, Mail, Phone, MapPin, Calendar, Users, CheckCircle } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Calendar, Users, CheckCircle, Edit, Trash2, X } from 'lucide-react';
 
 export default function MouvementCitoyenApp() {
   const [page, setPage] = useState('form'); // 'form', 'success', 'dashboard'
   const [members, setMembers] = useState([]);
+  const [editingMember, setEditingMember] = useState(null);
   const [formData, setFormData] = useState({
     nom: '',
     prenom: '',
@@ -42,20 +43,35 @@ export default function MouvementCitoyenApp() {
   };
 
   const handleSubmit = () => {
-    if (!formData.nom || !formData.prenom || !formData.sexe || !formData.adresse || 
-        !formData.telephone || !formData.email || !formData.trancheAge || 
-        !formData.lieuResidence || !formData.moisNaissance) {
+    if (!formData.nom || !formData.prenom || !formData.sexe || !formData.adresse ||
+      !formData.telephone || !formData.email || !formData.trancheAge ||
+      !formData.lieuResidence || !formData.moisNaissance) {
       alert('Veuillez remplir tous les champs obligatoires');
       return;
     }
 
-    const newMember = {
-      ...formData,
-      id: Date.now(),
-      dateInscription: new Date().toLocaleDateString('fr-FR')
-    };
-    setMembers(prev => [...prev, newMember]);
-    setPage('success');
+    if (editingMember) {
+      // Mode édition
+      const updatedMember = {
+        ...formData,
+        id: editingMember.id,
+        dateInscription: editingMember.dateInscription
+      };
+      setMembers(prev => prev.map(member =>
+        member.id === editingMember.id ? updatedMember : member
+      ));
+      setEditingMember(null);
+      setPage('dashboard');
+    } else {
+      // Mode création
+      const newMember = {
+        ...formData,
+        id: Date.now(),
+        dateInscription: new Date().toLocaleDateString('fr-FR')
+      };
+      setMembers(prev => [...prev, newMember]);
+      setPage('success');
+    }
   };
 
   const resetForm = () => {
@@ -71,6 +87,31 @@ export default function MouvementCitoyenApp() {
       moisNaissance: '',
       photo: null,
       photoPreview: null
+    });
+    setEditingMember(null);
+    setPage('form');
+  };
+
+  const handleDeleteMember = (memberId) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) {
+      setMembers(prev => prev.filter(member => member.id !== memberId));
+    }
+  };
+
+  const handleEditMember = (member) => {
+    setEditingMember(member);
+    setFormData({
+      nom: member.nom,
+      prenom: member.prenom,
+      sexe: member.sexe,
+      adresse: member.adresse,
+      telephone: member.telephone,
+      email: member.email,
+      trancheAge: member.trancheAge,
+      lieuResidence: member.lieuResidence,
+      moisNaissance: member.moisNaissance,
+      photo: member.photo,
+      photoPreview: member.photoPreview
     });
     setPage('form');
   };
@@ -170,8 +211,26 @@ export default function MouvementCitoyenApp() {
                     <span>Né(e) en {member.moisNaissance}</span>
                   </div>
                 </div>
-                <div className="mt-4 pt-4 border-t text-xs text-gray-500">
-                  Inscrit le {member.dateInscription}
+                <div className="mt-4 pt-4 border-t text-xs text-gray-500 flex justify-between items-center">
+                  <span>Inscrit le {member.dateInscription}</span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEditMember(member)}
+                      className="p-2 rounded-lg text-white hover:opacity-80 transition-opacity"
+                      style={{ backgroundColor: '#007FFF' }}
+                      title="Modifier"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteMember(member.id)}
+                      className="p-2 rounded-lg text-white hover:opacity-80 transition-opacity"
+                      style={{ backgroundColor: '#DC2626' }}
+                      title="Supprimer"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -196,7 +255,22 @@ export default function MouvementCitoyenApp() {
             <h1 className="text-4xl font-bold mb-2" style={{ color: '#007FFF' }}>
               Mouvement Citoyen Congolais
             </h1>
-            <p className="text-gray-600 text-lg">Formulaire d'adhésion</p>
+            <p className="text-gray-600 text-lg">
+              {editingMember ? 'Modifier les informations du membre' : 'Formulaire d\'adhésion'}
+            </p>
+            {editingMember && (
+              <button
+                onClick={() => {
+                  setEditingMember(null);
+                  resetForm();
+                }}
+                className="mt-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90"
+                style={{ backgroundColor: '#6B7280' }}
+              >
+                <X className="w-4 h-4 inline mr-1" />
+                Annuler
+              </button>
+            )}
           </div>
 
           <div className="p-8">
@@ -378,7 +452,7 @@ export default function MouvementCitoyenApp() {
                 className="flex-1 py-4 rounded-lg font-bold text-white text-lg transition-all hover:opacity-90 shadow-lg"
                 style={{ backgroundColor: '#007FFF' }}
               >
-                S'inscrire
+                {editingMember ? 'Mettre à jour' : 'S\'inscrire'}
               </button>
               {members.length > 0 && (
                 <button
@@ -396,4 +470,3 @@ export default function MouvementCitoyenApp() {
     </div>
   );
 }
-                  

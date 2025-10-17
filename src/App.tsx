@@ -433,7 +433,7 @@ export default function MouvementCitoyenApp() {
               {/* Lieu de résidence */}
               <div className="md:col-span-2">
                 <label className="block font-semibold mb-2" style={{ color: '#007FFF' }}>
-                  Lieu de résidence *
+                  Ville de résidence *
                 </label>
                 <input
                   type="text"
